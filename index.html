@@ -1,0 +1,270 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Tangga Kekayaan</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700&display=swap">
+<style>
+/* Layout: tangga 6 anak tangga di atas, panel langkah aktif di bawah, ringkasan bulanan di header */
+:root{
+  --bg:#e9f3fa; --surface:#ffffff; --ink:#1d2b3a; --muted:#5b6b7b; --line:#d3e0ea;
+  --step:#c9b08a; --step-done:#f2b84b; --accent:#1f7a8c; --accent-ink:#ffffff;
+  --good:#2e8b57; --bad:#d6453d; --soft:#f3f8fc;
+  --display:'Baloo 2','Trebuchet MS',system-ui,sans-serif; --body:'Nunito',system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#101a26; --surface:#182535; --ink:#e8eff6; --muted:#9fb1c2; --line:#2a3d52;
+  --step:#7a6a50; --step-done:#e0a93a; --accent:#4fb3c6; --accent-ink:#0c1a24;
+  --good:#5cc08a; --bad:#ef7a73; --soft:#13202e; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101a26; --surface:#182535; --ink:#e8eff6; --muted:#9fb1c2; --line:#2a3d52;
+  --step:#7a6a50; --step-done:#e0a93a; --accent:#4fb3c6; --accent-ink:#0c1a24;
+  --good:#5cc08a; --bad:#ef7a73; --soft:#13202e; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;
+  padding-block:20px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:2rem;font-weight:800}
+h2{font-size:1.45rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0}
+.sub{color:var(--muted)}
+.tag{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.sum{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px;min-width:0}
+.sum b{display:block;font-family:var(--display);font-size:1.15rem;white-space:nowrap;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.stairs{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;align-items:end;height:230px}
+.stair{border:0;border-radius:10px 10px 4px 4px;background:var(--step);color:var(--ink);cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:8px 2px;gap:2px;min-width:0;font:inherit;position:relative}
+.stair.done{background:var(--step-done)}
+.stair .n{font-family:var(--display);font-weight:800;font-size:1.2rem}
+.stair .l{font-size:.68rem;font-weight:700;overflow:hidden;max-width:100%}
+.stair .st{font-size:.8rem;font-weight:800}
+.stair.sel{outline:3px solid var(--accent);outline-offset:2px}
+.stair.cur::after{content:"kamu di sini";position:absolute;top:-22px;left:50%;transform:translateX(-50%);white-space:nowrap;
+  font-size:.65rem;font-weight:800;background:var(--accent);color:var(--accent-ink);border-radius:99px;padding:1px 8px}
+.stair:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.lesson{background:var(--soft);border-radius:12px;padding:10px 12px;color:var(--muted);font-size:.92rem}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:end}
+.row>*{min-width:0}
+label{display:flex;flex-direction:column;gap:3px;font-size:.8rem;font-weight:700;color:var(--muted);flex:1 1 120px}
+input,select{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;width:100%;min-height:40px}
+button.btn{font:inherit;font-weight:700;background:var(--accent);color:var(--accent-ink);border:0;border-radius:10px;padding:9px 14px;min-height:40px;cursor:pointer}
+button.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+button.x{background:none;border:0;color:var(--muted);cursor:pointer;font-size:1rem;padding:4px 8px;border-radius:8px}
+.list{display:flex;flex-direction:column;gap:6px}
+.item{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:10px}
+.item .t{min-width:0;overflow-wrap:anywhere}
+.item .a{font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+.bar{height:10px;background:var(--soft);border-radius:99px;overflow:hidden;border:1px solid var(--line)}
+.bar i{display:block;height:100%;background:var(--good)}
+.bar.bad i{background:var(--bad)}
+.pill{font-size:.7rem;font-weight:800;border-radius:99px;padding:1px 8px;background:var(--soft);color:var(--muted);border:1px solid var(--line)}
+.note{border-left:4px solid var(--step-done);padding:6px 12px;background:var(--soft);border-radius:0 10px 10px 0;font-size:.92rem}
+.warn{border-left-color:var(--bad)}
+.empty{color:var(--muted);padding:10px;border:1px dashed var(--line);border-radius:10px;text-align:center}
+.goal{display:flex;flex-direction:column;gap:6px}
+.goal .top{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-weight:700}
+.chk{display:flex;gap:8px;align-items:center;font-weight:600}
+.chk input{width:auto;min-height:0}
+.foot{font-size:.8rem;color:var(--muted)}
+.themebtn{align-self:flex-start}
+@media (max-width:480px){h1{font-size:1.6rem}.stairs{height:210px}.summary{gap:6px}.sum{padding:8px}.sum b{font-size:.92rem}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap" id="app"></div>
+
+<script>
+(function(){
+var KEY='tangga-kekayaan-v1';
+var $=function(s){return document.querySelector(s)};
+var pad=function(n){return String(n).padStart(2,'0')};
+var iso=function(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())};
+var daysAgo=function(n){var d=new Date();d.setDate(d.getDate()-n);return iso(d)};
+var rp=function(n){return 'Rp'+Math.round(n||0).toLocaleString('id-ID')};
+var esc=function(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+var uid=function(){return Math.random().toString(36).slice(2,9)};
+var num=function(v){return Math.max(0,parseInt(String(v).replace(/\D/g,''),10)||0)};
+
+var STEPS=[
+ {k:'Catat',t:'Catat pengeluaran',lesson:'Tangga 1: sebelum menaikkan apa pun, lihat dulu ke mana uang pergi. Kopi, ongkir, jajan sore, dan langganan kecil yang lupa dipakai sering jadi kebocoran terbesar.'},
+ {k:'Utang',t:'Lunasi utang konsumtif',lesson:'Tangga 2: cicilan HP, paylater, dan belanja online menggerus penghasilan tiap bulan. Lunasi satu per satu sampai Rp0, lalu jangan ambil yang baru.'},
+ {k:'Darurat',t:'Kumpulkan dana darurat',lesson:'Tangga 3: saat ada yang sakit atau motor mogok, dana darurat mencegah kamu pinjam ke pinjol berbunga tinggi. Targetnya 3 sampai 6 kali kebutuhan bulanan.'},
+ {k:'Hasil',t:'Naikkan penghasilan',lesson:'Tangga 4: setelah pengeluaran rapi, naikkan pemasukan. Dita mencoba 3 usaha kecil sampai penghasilannya naik 3 kali lipat.'},
+ {k:'Invest',t:'Investasi rutin yang aman',lesson:'Tangga 5: setor tiap gajian ke instrumen yang jelas dan berizin. Janji untung 10% per bulan adalah tanda penipuan, bukan peluang.'},
+ {k:'Aset',t:'Bangun aset produktif',lesson:'Tangga 6: ada aset yang memberimu uang tiap bulan, misalnya kios yang disewakan. Di sini uang mulai bekerja untukmu.'}
+];
+
+function sample(){
+ return {
+  income:{daily:50000,days:6,needs:900000,extra:[]},
+  expenses:[
+   {id:uid(),date:daysAgo(0),name:'Kopi',amt:25000,cat:'Jajan',sample:1},
+   {id:uid(),date:daysAgo(0),name:'Ongkir',amt:15000,cat:'Transport',sample:1},
+   {id:uid(),date:daysAgo(1),name:'Jajan sore',amt:20000,cat:'Jajan',sample:1},
+   {id:uid(),date:daysAgo(1),name:'Langganan streaming',amt:55000,cat:'Langganan',sample:1}
+  ],
+  debts:[],noDebt:false,
+  fund:{balance:0,months:3},
+  invest:{deposits:[],monthly:100000,rate:6,years:5},
+  assets:[],
+  sel:null
+ };
+}
+var S;
+function load(){
+ var d=sample();
+ try{var raw=localStorage.getItem(KEY);if(raw){var p=JSON.parse(raw);for(var k in d){if(p[k]!==undefined)d[k]=p[k]}}}catch(e){}
+ return d;
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+
+/* kalkulasi */
+function mainMonthly(){return S.income.daily*S.income.days*52/12}
+function extraWeekly(){return S.income.extra.reduce(function(a,e){return a+e.perWeek},0)}
+function monthlyIncome(){return (S.income.daily*S.income.days+extraWeekly())*52/12}
+function assetMonthly(){return S.assets.reduce(function(a,x){return a+x.monthly},0)}
+function totalIncome(){return monthlyIncome()+assetMonthly()}
+function surplus(){return totalIncome()-S.income.needs}
+function debtLeft(){return S.debts.reduce(function(a,d){return a+Math.max(0,d.total-d.paid)},0)}
+function fundTarget(){return S.income.needs*S.fund.months}
+function loggedDays(){var o={};S.expenses.forEach(function(e){if(!e.sample)o[e.date]=1});return Object.keys(o).length}
+function eta(remaining){
+ if(remaining<=0)return 'tercapai';
+ var s=surplus();
+ if(s<=0)return 'belum ada sisa bulanan, mulai dari menekan pengeluaran';
+ var m=remaining/s;return m<=1?'sekitar 1 bulan':'sekitar '+Math.ceil(m)+' bulan'+(m>24?' (±'+(m/12).toFixed(1).replace('.',',')+' tahun)':'');
+}
+function done(i){
+ switch(i){
+  case 0:return loggedDays()>=7;
+  case 1:return S.noDebt||(S.debts.length>0&&debtLeft()===0);
+  case 2:return S.fund.balance>=fundTarget()&&fundTarget()>0;
+  case 3:return monthlyIncome()>=3*mainMonthly();
+  case 4:return S.invest.deposits.length>=6;
+  case 5:return assetMonthly()>=0.1*monthlyIncome()&&assetMonthly()>0;
+ }
+}
+function current(){for(var i=0;i<6;i++)if(!done(i))return i;return 5}
+function fv(p,rate,years){var r=rate/100/12,n=years*12;return r===0?p*n:p*((Math.pow(1+r,n)-1)/r)}
+
+/* tampilan */
+function goal(label,now,target,extra){
+ var pct=target>0?Math.min(100,now/target*100):0;
+ return '<div class="goal"><div class="top"><span>'+label+'</span><span>'+rp(now)+' / '+rp(target)+'</span></div><div class="bar"><i style="width:'+pct+'%"></i></div>'+(extra?'<div class="sub">'+extra+'</div>':'')+'</div>';
+}
+function numInput(id,label,val,path,extra){
+ return '<label for="'+id+'">'+label+'<input id="'+id+'" inputmode="numeric" data-set="'+path+'" value="'+val+'" '+(extra||'')+'></label>';
+}
+
+function panel(i){
+ var h='<div class="tag">Anak tangga '+(i+1)+' dari 6</div><h2>'+STEPS[i].t+'</h2><div class="lesson">'+STEPS[i].lesson+'</div>';
+ if(i===0){
+  var cats={},tot=0;
+  S.expenses.forEach(function(e){cats[e.cat]=(cats[e.cat]||0)+e.amt;tot+=e.amt});
+  var leak=(cats.Jajan||0)+(cats.Langganan||0);
+  h+='<form class="row" data-form="expense"><label for="en">Pengeluaran<input id="en" name="name" required placeholder="mis. kopi, ongkir"></label>'+
+   '<label for="ea">Jumlah (Rp)<input id="ea" name="amt" inputmode="numeric" required placeholder="15000"></label>'+
+   '<label for="ec">Jenis<select id="ec" name="cat"><option>Jajan</option><option>Transport</option><option>Langganan</option><option>Kebutuhan</option><option>Lainnya</option></select></label>'+
+   '<button class="btn" type="submit">Catat</button></form>';
+  h+='<div class="goal"><div class="top"><span>Hari tercatat (tidak termasuk contoh)</span><span>'+loggedDays()+' / 7</span></div><div class="bar"><i style="width:'+Math.min(100,loggedDays()/7*100)+'%"></i></div><div class="sub">Selesai setelah pengeluaran dicatat di 7 hari yang berbeda.</div></div>';
+  if(tot>0){
+   h+='<div class="note'+(leak/tot>0.4?' warn':'')+'"><b>Kebocoran:</b> jajan dan langganan = '+rp(leak)+' ('+Math.round(leak/tot*100)+'% dari yang tercatat). '+(leak/tot>0.4?'Cek mana yang bisa dikurangi atau dihentikan.':'Masih wajar, terus pantau.')+'</div>';
+   h+='<div class="list">'+Object.keys(cats).sort(function(a,b){return cats[b]-cats[a]}).map(function(c){return '<div class="goal"><div class="top"><span>'+c+'</span><span>'+rp(cats[c])+'</span></div><div class="bar'+(c==='Jajan'||c==='Langganan'?' bad':'')+'"><i style="width:'+(cats[c]/tot*100)+'%"></i></div></div>'}).join('')+'</div>';
+  }
+  var ex=S.expenses.slice().sort(function(a,b){return a.date<b.date?1:-1}).slice(0,12);
+  h+='<h3>Catatan terakhir</h3>'+(ex.length?'<div class="list">'+ex.map(function(e){return '<div class="item"><div class="t">'+esc(e.name)+' <span class="pill">'+e.cat+'</span> <span class="pill">'+e.date.slice(5).split('-').reverse().join('/')+'</span>'+(e.sample?' <span class="pill">contoh</span>':'')+'</div><div><span class="a">'+rp(e.amt)+'</span><button class="x" data-act="delExp" data-id="'+e.id+'" aria-label="Hapus">✕</button></div></div>'}).join('')+'</div>':'<div class="empty">Belum ada catatan. Tulis pengeluaran pertamamu di atas.</div>');
+  if(S.expenses.some(function(e){return e.sample}))h+='<button class="btn ghost" data-act="clearSample" style="align-self:flex-start">Hapus data contoh</button>';
+ }
+ if(i===1){
+  h+='<label class="chk" for="nd"><input type="checkbox" id="nd" data-act="noDebt" '+(S.noDebt?'checked':'')+'> Saya tidak punya utang konsumtif (cicilan, paylater, pinjol)</label>';
+  h+='<form class="row" data-form="debt"><label for="dn">Nama utang<input id="dn" name="name" required placeholder="mis. cicilan HP"></label><label for="dt">Sisa total (Rp)<input id="dt" name="total" inputmode="numeric" required></label><button class="btn" type="submit">Tambah</button></form>';
+  if(S.debts.length){
+   h+=goal('Total utang tersisa',debtLeft(),S.debts.reduce(function(a,d){return a+d.total},0),'Perkiraan lunas: '+eta(debtLeft()));
+   h+='<div class="list">'+S.debts.map(function(d){var left=Math.max(0,d.total-d.paid);return '<div class="item" style="flex-wrap:wrap"><div class="t"><b>'+esc(d.name)+'</b> '+(left===0?'<span class="pill">LUNAS</span>':'')+'<div class="sub">sisa '+rp(left)+' dari '+rp(d.total)+'</div></div><form class="row" data-form="pay" data-id="'+d.id+'" style="flex-wrap:nowrap"><input name="amt" inputmode="numeric" placeholder="Bayar" aria-label="Jumlah bayar '+esc(d.name)+'" style="width:100px"><button class="btn" type="submit">Bayar</button><button class="x" type="button" data-act="delDebt" data-id="'+d.id+'" aria-label="Hapus">✕</button></form></div>'}).join('')+'</div>';
+  }else if(!S.noDebt)h+='<div class="empty">Belum ada utang tercatat. Tambahkan, atau centang kotak di atas jika memang tidak ada.</div>';
+ }
+ if(i===2){
+  h+='<div class="row">'+numInput('nds','Kebutuhan pokok per bulan (Rp)',S.income.needs,'income.needs')+'<label for="fm">Target (kali kebutuhan)<select id="fm" data-set="fund.months">'+[3,4,5,6].map(function(m){return '<option'+(m===S.fund.months?' selected':'')+'>'+m+'</option>'}).join('')+'</select></label></div>';
+  h+=goal('Dana darurat',S.fund.balance,fundTarget(),'Perkiraan tercapai: '+eta(fundTarget()-S.fund.balance)+' jika sisa bulanan masuk ke sini.');
+  h+='<form class="row" data-form="fund"><label for="fa">Setor / tarik (Rp)<input id="fa" name="amt" inputmode="numeric" required></label><button class="btn" type="submit" name="op" value="add">Setor</button><button class="btn ghost" type="submit" name="op" value="sub">Tarik</button></form>';
+ }
+ if(i===3){
+  h+='<div class="row">'+numInput('id1','Penghasilan harian (Rp)',S.income.daily,'income.daily')+numInput('id2','Hari kerja per pekan',S.income.days,'income.days')+'</div>';
+  h+=goal('Penghasilan bulanan',monthlyIncome(),3*mainMonthly(),'Target Dita: naik 3 kali lipat dari penghasilan utama ('+rp(mainMonthly())+' per bulan jadi '+rp(3*mainMonthly())+').');
+  h+='<form class="row" data-form="extra"><label for="xn">Usaha kecil / tambahan<input id="xn" name="name" required list="ideas" placeholder="mis. servis laptop panggilan"></label><datalist id="ideas"><option value="Servis laptop/PC panggilan"><option value="Pasang WiFi / CCTV"><option value="Usaha cuci motor"><option value="Jual sayur hasil kebun"><option value="Jasa ketik / olah dokumen"></datalist><label for="xa">Target tambahan per pekan (Rp)<input id="xa" name="amt" inputmode="numeric" required></label><button class="btn" type="submit">Tambah</button></form>';
+  h+=S.income.extra.length?'<div class="list">'+S.income.extra.map(function(e){return '<div class="item"><div class="t">'+esc(e.name)+'</div><div><span class="a">'+rp(e.perWeek)+'/pekan</span><button class="x" data-act="delExtra" data-id="'+e.id+'" aria-label="Hapus">✕</button></div></div>'}).join('')+'</div>':'<div class="empty">Belum ada sumber penghasilan tambahan. Mulai dari satu usaha kecil dulu.</div>';
+ }
+ if(i===4){
+  var dep=S.invest.deposits.reduce(function(a,d){return a+d.amt},0);
+  h+='<div class="note warn"><b>Ujian 1:</b> janji untung 10% per bulan, "pasti untung", atau uang cepat berlipat adalah ciri penipuan. Pilih instrumen berizin OJK dan cek legalitasnya sebelum menyetor.</div>';
+  h+=goal('Setoran rutin',S.invest.deposits.length,6,'Selesai setelah 6 kali setoran. Total disetor sejauh ini '+rp(dep)+'.');
+  h+='<form class="row" data-form="dep"><label for="da">Setoran bulan ini (Rp)<input id="da" name="amt" inputmode="numeric" required></label><button class="btn" type="submit">Catat setoran</button></form>';
+  if(S.invest.deposits.length)h+='<div class="list">'+S.invest.deposits.slice().reverse().slice(0,6).map(function(d,ix){return '<div class="item"><div class="t">'+d.date+'</div><div><span class="a">'+rp(d.amt)+'</span><button class="x" data-act="delDep" data-id="'+d.id+'" aria-label="Hapus">✕</button></div></div>'}).join('')+'</div>';
+  var f=fv(S.invest.monthly,S.invest.rate,S.invest.years),dd=S.invest.monthly*12*S.invest.years;
+  h+='<h3>Simulasi ilustrasi</h3><div class="row">'+numInput('sm','Setoran per bulan (Rp)',S.invest.monthly,'invest.monthly')+numInput('sr','Imbal hasil per tahun (%)',S.invest.rate,'invest.rate')+numInput('sy','Lama (tahun)',S.invest.years,'invest.years')+'</div>';
+  h+='<div class="note">Setor '+rp(S.invest.monthly)+' per bulan selama '+S.invest.years+' tahun dengan asumsi '+S.invest.rate+'% per tahun menjadi sekitar <b>'+rp(f)+'</b> (disetor '+rp(dd)+', hasil '+rp(f-dd)+'). Angka ilustrasi, bukan jaminan.</div>';
+ }
+ if(i===5){
+  h+=goal('Pemasukan dari aset per bulan',assetMonthly(),Math.max(1,0.1*monthlyIncome()),'Selesai bila aset menghasilkan minimal 10% dari total penghasilan bulananmu.');
+  h+='<form class="row" data-form="asset"><label for="an">Aset<input id="an" name="name" required placeholder="mis. sewa kios, rak titipan"></label><label for="am">Hasil per bulan (Rp)<input id="am" name="amt" inputmode="numeric" required></label><button class="btn" type="submit">Tambah</button></form>';
+  h+=S.assets.length?'<div class="list">'+S.assets.map(function(a){return '<div class="item"><div class="t">'+esc(a.name)+'</div><div><span class="a">'+rp(a.monthly)+'/bln</span><button class="x" data-act="delAsset" data-id="'+a.id+'" aria-label="Hapus">✕</button></div></div>'}).join('')+'</div>':'<div class="empty">Belum ada aset produktif. Ini tangga paling atas, wajar kalau masih kosong.</div>';
+ }
+ return h;
+}
+
+function render(){
+ var cur=current(),sel=S.sel===null?cur:S.sel;
+ var sur=surplus();
+ var html='<header><div class="tag">Dari video 6 anak tangga kekayaan</div><h1>Tangga Kekayaan</h1><p class="sub">Naik satu anak tangga dalam satu waktu. Isi datamu, aplikasi ini menunjukkan langkah berikutnya.</p></header>';
+ html+='<div class="tag">Per bulan</div><section class="summary" aria-label="Ringkasan per bulan"><div class="sum"><span class="tag">Pemasukan</span><b>'+rp(totalIncome())+'</b></div><div class="sum"><span class="tag">Kebutuhan</span><b>'+rp(S.income.needs)+'</b></div><div class="sum"><span class="tag">Sisa</span><b style="color:'+(sur>=0?'var(--good)':'var(--bad)')+'">'+rp(sur)+'</b></div></section>';
+ html+='<div class="note">Rp'+S.income.daily.toLocaleString('id-ID')+' × '+S.income.days+' hari = '+rp(S.income.daily*S.income.days)+' per pekan. '+(sur>0?'Sisa '+rp(sur)+' per bulan sebaiknya difokuskan ke <b>tangga '+(cur+1)+': '+STEPS[cur].t.toLowerCase()+'</b>.':'Kebutuhan sudah menghabiskan seluruh penghasilan. Mulai dari tangga 1 untuk menemukan pengeluaran yang bisa ditekan, atau tangga 4 untuk menambah pemasukan.')+'</div>';
+ html+='<nav class="stairs" aria-label="Enam anak tangga">'+STEPS.map(function(s,i){
+  var d=done(i);return '<button class="stair'+(d?' done':'')+(i===cur?' cur':'')+(i===sel?' sel':'')+'" style="height:'+(30+i*14)+'%" data-act="sel" data-i="'+i+'" aria-label="Tangga '+(i+1)+': '+s.t+(d?', selesai':'')+'"><span class="st">'+(d?'✓':'')+'</span><span class="n">'+(i+1)+'</span><span class="l">'+s.k+'</span></button>'}).join('')+'</nav>';
+ html+='<section class="panel">'+panel(sel)+'</section>';
+ html+='<p class="foot">Data tersimpan di browser ini saja. Angka kebutuhan, imbal hasil, dan target adalah perkiraan awal yang bisa kamu ubah. Simulasi bukan jaminan hasil dan bukan nasihat keuangan.</p>';
+ $('#app').innerHTML=html;
+}
+
+function set(path,val){var p=path.split('.'),o=S;for(var i=0;i<p.length-1;i++)o=o[p[i]];o[p[p.length-1]]=val}
+
+document.addEventListener('click',function(e){
+ var b=e.target.closest('[data-act]');if(!b)return;
+ var a=b.dataset.act,id=b.dataset.id;
+ if(a==='sel')S.sel=+b.dataset.i;
+ else if(a==='delExp')S.expenses=S.expenses.filter(function(x){return x.id!==id});
+ else if(a==='clearSample')S.expenses=S.expenses.filter(function(x){return !x.sample});
+ else if(a==='delDebt')S.debts=S.debts.filter(function(x){return x.id!==id});
+ else if(a==='delExtra')S.income.extra=S.income.extra.filter(function(x){return x.id!==id});
+ else if(a==='delDep')S.invest.deposits=S.invest.deposits.filter(function(x){return x.id!==id});
+ else if(a==='delAsset')S.assets=S.assets.filter(function(x){return x.id!==id});
+ else if(a==='noDebt')S.noDebt=b.checked;
+ else return;
+ save();render();
+});
+document.addEventListener('change',function(e){
+ var t=e.target;if(!t.dataset.set)return;
+ set(t.dataset.set,num(t.value)||(t.dataset.set==='income.days'?6:0));
+ if(S.income.days>7)S.income.days=7;
+ save();render();
+});
+document.addEventListener('submit',function(e){
+ var f=e.target.closest('form');if(!f||!f.dataset.form)return;
+ e.preventDefault();
+ var fd=new FormData(f),k=f.dataset.form,amt=num(fd.get('amt')),name=String(fd.get('name')||'').trim();
+ if(k==='expense'&&amt&&name)S.expenses.push({id:uid(),date:iso(new Date()),name:name,amt:amt,cat:fd.get('cat')});
+ else if(k==='debt'){var t=num(fd.get('total'));if(t&&name)S.debts.push({id:uid(),name:name,total:t,paid:0});}
+ else if(k==='pay'){S.debts.forEach(function(d){if(d.id===f.dataset.id)d.paid=Math.min(d.total,d.paid+amt)})}
+ else if(k==='fund'){var op=e.submitter&&e.submitter.value;S.fund.balance=Math.max(0,S.fund.balance+(op==='sub'?-amt:amt))}
+ else if(k==='extra'&&amt&&name)S.income.extra.push({id:uid(),name:name,perWeek:amt});
+ else if(k==='dep'&&amt)S.invest.deposits.push({id:uid(),date:iso(new Date()),amt:amt});
+ else if(k==='asset'&&amt&&name)S.assets.push({id:uid(),name:name,monthly:amt});
+ save();render();
+});
+
+S=load();render();
+})();
+</script>
+
+</body></html>
